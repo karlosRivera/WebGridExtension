@@ -1,0 +1,79 @@
+﻿@model MVC4_WebGridSample.Models.StudentViewModel
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+@section scripts{
+
+    <script type="text/javascript">
+        var gridSort = '@Model.Sort';
+        var gridSortDir = '@Model.Sortdir';
+
+    </script>
+
+    <script src="~/Scripts/AppScripts/PagerScript.js"></script>
+}
+
+@section styles
+{
+    <style type="text/css">
+        .space-box
+        {
+            margin: 10px;
+        }
+    </style>
+
+}
+
+@{
+    WebGrid grid = new WebGrid(null, rowsPerPage: Model.PageSize, canPage: true, defaultSort: "ID");
+    grid.Bind(Model.StudentData, rowCount: Model.TotalCount, autoSortAndPage: false);
+}
+
+<br /><br /><br />
+<div class="col-md-2" style="margin-left:-1px;padding-left :0px;">
+    <p>Records :@{ var x = (Model.Page * Model.PageSize) >= Model.TotalCount ? Model.TotalCount : (Model.Page * Model.PageSize);  }@x out of @Model.TotalCount</p>
+</div>
+
+<br />
+
+@using (@Html.BeginForm("Index", "Home", FormMethod.Post, new { @id = "frmDetails" }))
+{
+
+<div class="row" style="width:70%;margin-left:0px;margin-right:0px;">
+
+    @if (Model.StudentData != null && Model.StudentData.Count > 0)
+    {
+        @grid.GetHtml(tableStyle: "table table-bordered", columns:
+                            grid.Columns(
+                                            grid.Column("ID", "Student ID"),
+                                            grid.Column("FirstName", "First Name"),
+                                            grid.Column("LastName", "Last Name"),
+                                            grid.Column(header: "IsActive",canSort:true,
+                                                format: @<text><input id="select" class="box" name="select" type="checkbox"
+                                                @(item.IsActive ? "checked='checked'" : "") value="@item.IsActive" /></text>,
+                                                style: "text-center checkbox-width")
+
+                                        )
+                            )
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">No Data</div>
+    }
+
+</div>
+
+<div class="panel-footer" style="width:70%;">
+    
+        <div id="gridPager" class="space-box">
+            @if (Model.StudentData != null && Model.StudentData.Count > 0)
+            {
+                @grid.PagerList(WebGridPagerModes.All)
+            }
+        </div>
+    
+
+</div>
+}
